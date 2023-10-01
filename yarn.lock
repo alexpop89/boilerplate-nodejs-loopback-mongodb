@@ -348,6 +348,17 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@loopback/authentication-jwt@^0.14.3":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@loopback/authentication-jwt/-/authentication-jwt-0.14.3.tgz#54b105e8d6b044043d97a9c8623f6ee25908d4d5"
+  integrity sha512-nZFhU0paoUEpZjWMiuvqDjNuh11LXwwxF9avnjZ4WPM4ljPS/HXv9haHQuIRAWUGAouneXAdvipvzgYp1aPFXQ==
+  dependencies:
+    "@loopback/security" "^0.10.3"
+    "@types/bcryptjs" "2.4.3"
+    bcryptjs "^2.4.3"
+    debug "^4.3.4"
+    jsonwebtoken "^9.0.2"
+
 "@loopback/authentication-passport@^6.1.3":
   version "6.1.3"
   resolved "https://registry.yarnpkg.com/@loopback/authentication-passport/-/authentication-passport-6.1.3.tgz#4df164ce18eae72dd7309f68b05e78a6ad433dca"
@@ -896,6 +907,11 @@
   dependencies:
     "@tufjs/canonical-json" "2.0.0"
     minimatch "^9.0.3"
+
+"@types/bcryptjs@2.4.3":
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.3.tgz#2302ab44f10912579a183c96eb0e3b951c929915"
+  integrity sha512-XTnH9E/rp51aKGsiMtQCHV/owDLW2E9QAxI7ItpWWm6Gi6XO1e4o3VuEYDma0lbitj1vNOBj05Qk8l2BYoiN4A==
 
 "@types/bcryptjs@^2.4.4":
   version "2.4.4"

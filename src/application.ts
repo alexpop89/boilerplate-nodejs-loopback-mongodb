@@ -14,6 +14,7 @@ import {TokenService, UserService} from './services';
 import {JWTAuthenticationStrategy} from './strategies';
 import {TokenServiceBindings, UserServiceBindings} from './keys';
 import {AuthorizationComponent} from '@loopback/authorization';
+import {JWTAuthenticationComponent} from '@loopback/authentication-jwt';
 
 export {ApplicationConfig};
 
@@ -51,6 +52,7 @@ export class MainApplication extends BootMixin(
     // Set up authentication
     this.component(AuthenticationComponent);
     this.component(AuthorizationComponent);
+    this.component(JWTAuthenticationComponent)
     registerAuthenticationStrategy(this, JWTAuthenticationStrategy);
     this.bind(UserServiceBindings.USER_SERVICE).toClass(UserService);
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(TokenService);

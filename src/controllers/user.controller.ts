@@ -22,8 +22,9 @@ import {UserRepository} from '../repositories';
 import {inject} from '@loopback/context';
 import {TokenService, UserService} from '../services';
 import {TokenServiceBindings, UserServiceBindings} from '../keys';
-import {Credentials} from '../interfaces';
+import {Credentials, UserProfile} from '../interfaces';
 import {authenticate} from '@loopback/authentication';
+import {SecurityBindings} from '@loopback/security';
 
 export class UserController {
   constructor(
@@ -68,7 +69,25 @@ export class UserController {
     return {token};
   }
 
-  @authenticate({strategy: 'jwt', options: {scheme: 'bearer'}})
+  @authenticate('jwt')
+  @get('/me', {
+    responses: {
+      '200': {
+        description: 'Who am I',
+        content: {
+          'application/json': {},
+        },
+      },
+    },
+  })
+  async me(
+    @inject(SecurityBindings.USER)
+      currentUserProfile: UserProfile,
+  ): Promise<UserProfile> {
+    return currentUserProfile;
+  }
+
+  @authenticate({strategy: 'jwt'})
   @get('/users/count')
   @response(200, {
     description: 'User model count',
