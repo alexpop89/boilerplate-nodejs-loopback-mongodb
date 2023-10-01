@@ -1,6 +1,6 @@
 {
   "name": "boilerplate-nodejs-loopback-mongodb",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "boilerplate-nodejs-loopback-mongodb",
   "keywords": [
     "loopback-application",
