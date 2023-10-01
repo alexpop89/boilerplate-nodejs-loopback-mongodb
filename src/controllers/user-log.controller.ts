@@ -11,6 +11,7 @@ import {
 } from '@loopback/rest';
 import {UserLog} from '../models';
 import {UserLogRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
 export class UserLogController {
   constructor(
@@ -18,6 +19,7 @@ export class UserLogController {
     public userLogRepository : UserLogRepository,
   ) {}
 
+  @authenticate('jwt')
   @get('/user-logs/count')
   @response(200, {
     description: 'UserLog model count',

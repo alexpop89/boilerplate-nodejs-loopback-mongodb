@@ -14,9 +14,11 @@ services:
       - MONGO_DATABASE_NAME=boilerplate-database
       - MONGO_USER=boilerplate-database-username
       - MONGO_PASSWORD=boilerplate-database-password
+#      - DEBUG=loopback:*
     volumes:
       - .:/home/node/app
-    command: nodemon --delay 2s -e ts,json --ignore './dist' --watch /home/node/app/src --exec "yarn run start"
+#    command: nodemon --delay 2s -e ts,json --ignore './dist' --watch /home/node/app/src --exec "yarn run start"
+    command: "yarn run start"
   mongo:
     image: "mongo"
     ports:

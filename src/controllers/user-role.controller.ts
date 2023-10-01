@@ -17,24 +17,24 @@ import {
 } from '@loopback/rest';
 import {
   User,
-  UserLog,
+  Role,
 } from '../models';
 import {UserRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 
-export class UserUserLogController {
+export class UserRoleController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
   ) { }
 
   @authenticate('jwt')
-  @get('/users/{id}/user-logs', {
+  @get('/users/{id}/roles', {
     responses: {
       '200': {
-        description: 'Array of User has many UserLog',
+        description: 'Array of User has many Role',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(UserLog)},
+            schema: {type: 'array', items: getModelSchemaRef(Role)},
           },
         },
       },
@@ -42,17 +42,17 @@ export class UserUserLogController {
   })
   async find(
     @param.path.string('id') id: string,
-    @param.query.object('filter') filter?: Filter<UserLog>,
-  ): Promise<UserLog[]> {
-    return this.userRepository.userLogs(id).find(filter);
+    @param.query.object('filter') filter?: Filter<Role>,
+  ): Promise<Role[]> {
+    return this.userRepository.roles(id).find(filter);
   }
 
   @authenticate('jwt')
-  @post('/users/{id}/user-logs', {
+  @post('/users/{id}/roles', {
     responses: {
       '200': {
         description: 'User model instance',
-        content: {'application/json': {schema: getModelSchemaRef(UserLog)}},
+        content: {'application/json': {schema: getModelSchemaRef(Role)}},
       },
     },
   })
@@ -61,23 +61,23 @@ export class UserUserLogController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserLog, {
-            title: 'NewUserLogInUser',
-            exclude: ['_id', '_createdAt', '_updatedAt'],
+          schema: getModelSchemaRef(Role, {
+            title: 'NewRoleInUser',
+            exclude: ['_id'],
             optional: ['userId']
           }),
         },
       },
-    }) userLog: Omit<UserLog, '_id'>,
-  ): Promise<UserLog> {
-    return this.userRepository.userLogs(id).create(userLog);
+    }) role: Omit<Role, '_id'>,
+  ): Promise<Role> {
+    return this.userRepository.roles(id).create(role);
   }
 
   @authenticate('jwt')
-  @patch('/users/{id}/user-logs', {
+  @patch('/users/{id}/roles', {
     responses: {
       '200': {
-        description: 'User.UserLog PATCH success count',
+        description: 'User.Role PATCH success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -87,29 +87,29 @@ export class UserUserLogController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserLog, {partial: true}),
+          schema: getModelSchemaRef(Role, {partial: true}),
         },
       },
     })
-    userLog: Partial<UserLog>,
-    @param.query.object('where', getWhereSchemaFor(UserLog)) where?: Where<UserLog>,
+    role: Partial<Role>,
+    @param.query.object('where', getWhereSchemaFor(Role)) where?: Where<Role>,
   ): Promise<Count> {
-    return this.userRepository.userLogs(id).patch(userLog, where);
+    return this.userRepository.roles(id).patch(role, where);
   }
 
   @authenticate('jwt')
-  @del('/users/{id}/user-logs', {
+  @del('/users/{id}/roles', {
     responses: {
       '200': {
-        description: 'User.UserLog DELETE success count',
+        description: 'User.Role DELETE success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(UserLog)) where?: Where<UserLog>,
+    @param.query.object('where', getWhereSchemaFor(Role)) where?: Where<Role>,
   ): Promise<Count> {
-    return this.userRepository.userLogs(id).delete(where);
+    return this.userRepository.roles(id).delete(where);
   }
 }

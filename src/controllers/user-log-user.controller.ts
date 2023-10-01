@@ -11,6 +11,7 @@ import {
   User,
 } from '../models';
 import {UserLogRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
 
 export class UserLogUserController {
   constructor(
@@ -18,6 +19,7 @@ export class UserLogUserController {
     public userLogRepository: UserLogRepository,
   ) { }
 
+  @authenticate('jwt')
   @get('/user-logs/{id}/user', {
     responses: {
       '200': {
