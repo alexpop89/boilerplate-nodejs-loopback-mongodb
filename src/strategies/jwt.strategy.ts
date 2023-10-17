@@ -37,12 +37,16 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
 
     // Check if the header's type is 'Bearer'
     if (type !== 'Bearer') {
-      throw new HttpErrors.Unauthorized(`Authorization header is not of type 'Bearer'.`);
+      throw new HttpErrors.Unauthorized(
+        `Authorization header is not of type 'Bearer'.`,
+      );
     }
 
     // Check if the token exists after the 'Bearer'
     if (!token) {
-      throw new HttpErrors.Unauthorized(`Token not found in Authorization header.`);
+      throw new HttpErrors.Unauthorized(
+        `Token not found in Authorization header.`,
+      );
     }
 
     return token;

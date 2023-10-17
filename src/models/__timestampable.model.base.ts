@@ -14,7 +14,6 @@ export class Timestampable extends Entity {
   })
   _updatedAt?: string;
 
-
   constructor(data?: Partial<Timestampable>) {
     super(data);
   }

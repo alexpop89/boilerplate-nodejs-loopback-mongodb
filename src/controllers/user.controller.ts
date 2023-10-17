@@ -7,17 +7,18 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  HttpErrors,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {User} from '../models';
+import {defaultUserRole, Role, User} from '../models';
 import {UserRepository} from '../repositories';
 import {inject} from '@loopback/context';
 import {TokenService, UserService} from '../services';
@@ -25,11 +26,13 @@ import {TokenServiceBindings, UserServiceBindings} from '../keys';
 import {Credentials, UserProfile} from '../interfaces';
 import {authenticate} from '@loopback/authentication';
 import {SecurityBindings} from '@loopback/security';
+import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
+@implementsAuthorization()
 export class UserController {
   constructor(
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
     @inject(UserServiceBindings.USER_SERVICE)
     public userService: UserService,
     @inject(TokenServiceBindings.TOKEN_SERVICE)
@@ -54,13 +57,19 @@ export class UserController {
     })
     user: Omit<User, '_id'>,
   ): Promise<User> {
-    return this.userService.createUser(user);
+    try {
+      const userRoles = [new Role(defaultUserRole)];
+      return await this.userService.createUser(user, userRoles);
+    } catch (error) {
+      console.error(error.message);
+      throw new HttpErrors.BadRequest();
+    }
   }
 
   @post('/login')
   async login(
     @requestBody() credentials: Credentials,
-  ): Promise<{ token: string }> {
+  ): Promise<{token: string}> {
     const user = await this.userService.verifyCredentials(credentials);
     const userProfile = this.userService.convertToUserProfile(user);
 
@@ -82,7 +91,7 @@ export class UserController {
   })
   async me(
     @inject(SecurityBindings.USER)
-      currentUserProfile: UserProfile,
+    currentUserProfile: UserProfile,
   ): Promise<UserProfile> {
     return currentUserProfile;
   }
@@ -93,9 +102,7 @@ export class UserController {
     description: 'User model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
+  async count(@param.where(User) where?: Where<User>): Promise<Count> {
     return this.userRepository.count(where);
   }
 
@@ -112,9 +119,7 @@ export class UserController {
       },
     },
   })
-  async find(
-    @param.filter(User) filter?: Filter<User>,
-  ): Promise<User[]> {
+  async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find(filter);
   }
 
@@ -150,7 +155,7 @@ export class UserController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
+    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>,
   ): Promise<User> {
     return this.userRepository.findById(id, filter);
   }

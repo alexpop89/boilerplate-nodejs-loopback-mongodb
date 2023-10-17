@@ -22,11 +22,11 @@ export class Role extends Timestampable {
 
   @property({
     type: 'array',
-    itemType: 'object',
+    itemType: RoleCondition,
     required: true,
     jsonSchema: {
       type: 'array',
-      items: RoleCondition.definition.properties
+      items: RoleCondition.definition.properties,
     },
   })
   conditions: RoleCondition[];
@@ -46,3 +46,33 @@ export interface RoleRelations {
 }
 
 export type RoleWithRelations = Role & RoleRelations;
+
+export const defaultUserRole = {
+  name: 'user',
+  conditions: [
+    new RoleCondition({
+      modelName: 'User',
+      ownershipField: '_id',
+      value: '$currentUserId',
+      permissions: ['read', 'write'],
+    }),
+    new RoleCondition({
+      modelName: 'Role',
+      ownershipField: 'userId',
+      value: '$currentUserId',
+      permissions: ['read'],
+    }),
+  ],
+};
+
+export const defaultSuperAdminRole = {
+  name: 'super admin',
+  conditions: [
+    new RoleCondition({
+      modelName: '*',
+      ownershipField: '*',
+      value: '*',
+      permissions: ['*'],
+    }),
+  ],
+};

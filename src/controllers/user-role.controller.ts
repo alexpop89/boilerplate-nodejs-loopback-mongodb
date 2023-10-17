@@ -15,17 +15,16 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  User,
-  Role,
-} from '../models';
+import {User, Role} from '../models';
 import {UserRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
+import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
+@implementsAuthorization()
 export class UserRoleController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
-  ) { }
+  ) {}
 
   @authenticate('jwt')
   @get('/users/{id}/roles', {
@@ -64,11 +63,12 @@ export class UserRoleController {
           schema: getModelSchemaRef(Role, {
             title: 'NewRoleInUser',
             exclude: ['_id'],
-            optional: ['userId']
+            optional: ['userId'],
           }),
         },
       },
-    }) role: Omit<Role, '_id'>,
+    })
+    role: Omit<Role, '_id'>,
   ): Promise<Role> {
     return this.userRepository.roles(id).create(role);
   }

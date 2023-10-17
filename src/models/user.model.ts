@@ -1,6 +1,6 @@
 import {model, property, hasMany} from '@loopback/repository';
 import {UserLog} from './user-log.model';
-import {Timestampable} from './__timestampable.model';
+import {Timestampable} from './__timestampable.model.base';
 import {Role} from './role.model';
 
 @model()
@@ -15,6 +15,9 @@ export class User extends Timestampable {
   @property({
     type: 'string',
     required: true,
+    index: {
+      unique: true,
+    },
     jsonSchema: {
       minLength: 5,
       maxLength: 255,
@@ -30,7 +33,8 @@ export class User extends Timestampable {
     required: true,
     jsonSchema: {
       minLength: 8, // At least 8 characters
-      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$', // At least one uppercase, one lowercase, one number, and one special character
+      pattern:
+        '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$', // At least one uppercase, one lowercase, one number, and one special character
     },
   })
   password: string;

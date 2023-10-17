@@ -1,4 +1,4 @@
-import { UserProfile as LoopbackUserProfile } from '@loopback/security';
+import {UserProfile as LoopbackUserProfile} from '@loopback/security';
 import {Role} from '../models';
 
 export interface UserProfile extends LoopbackUserProfile {

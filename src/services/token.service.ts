@@ -16,14 +16,18 @@ export class TokenService implements LoopbackTokenService {
 
   async verifyToken(token: string): Promise<UserProfile> {
     if (!token) {
-      throw new HttpErrors.Unauthorized(`Error verifying token: 'token' is null`);
+      throw new HttpErrors.Unauthorized(
+        `Error verifying token: 'token' is null`,
+      );
     }
 
     try {
       const decryptedToken = jwt.verify(token, this.jwtSecret);
       return decryptedToken as UserProfile;
     } catch (error) {
-      throw new HttpErrors.Unauthorized(`Error verifying token: ${error.message}`);
+      throw new HttpErrors.Unauthorized(
+        `Error verifying token: ${error.message}`,
+      );
     }
   }
 

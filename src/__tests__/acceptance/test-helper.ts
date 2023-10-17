@@ -6,19 +6,14 @@ import {
 } from '@loopback/testlab';
 
 export async function setupApplication(): Promise<AppWithClient> {
-  const restConfig = givenHttpServerConfig({
-    // Customize the server configuration here.
-    // Empty values (undefined, '') will be ignored by the helper.
-    //
-    // host: process.env.HOST,
-    // port: +process.env.PORT,
-  });
+  const restConfig = givenHttpServerConfig({});
 
   const app = new MainApplication({
     rest: restConfig,
   });
 
   await app.boot();
+  await app.migrateSchema();
   await app.start();
 
   const client = createRestAppClient(app);

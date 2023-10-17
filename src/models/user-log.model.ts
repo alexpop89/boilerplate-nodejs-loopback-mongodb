@@ -1,6 +1,6 @@
 import {model, property, belongsTo} from '@loopback/repository';
 import {User} from './user.model';
-import {Timestampable} from './__timestampable.model';
+import {Timestampable} from './__timestampable.model.base';
 
 @model()
 export class UserLog extends Timestampable {

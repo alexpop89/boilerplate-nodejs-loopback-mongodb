@@ -7,7 +7,7 @@ export class RoleCondition extends Model {
       type: 'object',
       properties: {
         // ... define your properties with types, requirements, etc ...
-      }
+      },
     };
   }
 
@@ -26,7 +26,7 @@ export class RoleCondition extends Model {
   @property({
     type: 'string',
     required: true,
-    default: '$currentUserId'
+    default: '$currentUserId',
   })
   value?: string;
 
@@ -41,7 +41,6 @@ export class RoleCondition extends Model {
     },
   })
   permissions: string[];
-
 
   constructor(data?: Partial<RoleCondition>) {
     super(data);

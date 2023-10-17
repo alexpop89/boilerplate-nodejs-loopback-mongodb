@@ -1,4 +1,4 @@
-export * from './__timestampable.model';
+export * from './__timestampable.model.base';
 export * from './user.model';
 export * from './user-log.model';
 export * from './role.model';

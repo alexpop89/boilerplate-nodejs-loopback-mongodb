@@ -14,12 +14,22 @@ services:
       - DB_NAME=boilerplate-database
       - DB_USER=boilerplate-database-username
       - DB_PASSWORD=boilerplate-database-password
+      - JWT_SECRET_KEY=Mdc6PVaq-q*sxFnFjvA@LhAs
+      - JWT_EXPIRATION_SECONDS=3600
 #      - DEBUG=loopback:*
     volumes:
       - .:/home/node/app
 #    command: nodemon --delay 2s -e ts,json --ignore './dist' --watch /home/node/app/src --exec "yarn run start"
     command: "yarn run start"
   mongo:
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=boilerplate-database
+      - MONGO_INITDB_ROOT_USERNAME=boilerplate-database-username
+      - MONGO_INITDB_ROOT_PASSWORD=boilerplate-database-password
+  test:
     image: "mongo"
     ports:
       - "27017:27017"

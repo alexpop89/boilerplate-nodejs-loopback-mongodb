@@ -1,23 +1,16 @@
-import {
-  repository,
-} from '@loopback/repository';
-import {
-  param,
-  get,
-  getModelSchemaRef,
-} from '@loopback/rest';
-import {
-  UserLog,
-  User,
-} from '../models';
+import {repository} from '@loopback/repository';
+import {param, get, getModelSchemaRef} from '@loopback/rest';
+import {UserLog, User} from '../models';
 import {UserLogRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
+import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
+@implementsAuthorization()
 export class UserLogUserController {
   constructor(
     @repository(UserLogRepository)
     public userLogRepository: UserLogRepository,
-  ) { }
+  ) {}
 
   @authenticate('jwt')
   @get('/user-logs/{id}/user', {

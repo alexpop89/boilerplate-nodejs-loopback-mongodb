@@ -4,3 +4,4 @@ export * from './user-log.controller';
 export * from './user-log-user.controller';
 export * from './user-user-log.controller';
 export * from './user-role.controller';
+export * from './role.controller';
