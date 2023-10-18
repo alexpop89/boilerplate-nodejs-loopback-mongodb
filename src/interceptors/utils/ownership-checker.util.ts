@@ -39,7 +39,10 @@ export class OwnershipCheckerUtil {
     invocationContext: InvocationContext,
   ): Promise<boolean> {
     // Get dynamic repository based on model name
-    const dynamicRepo = await this.getDynamicRepo(modelName);
+    const dynamicRepo = await this.getDynamicRepo(
+      modelName,
+      invocationContext.target,
+    );
     const entityId = invocationContext.args[0];
 
     let allowed = false;
@@ -149,12 +152,27 @@ export class OwnershipCheckerUtil {
    * Dynamically resolve and return a repository based on the model name.
    *
    * @param {string} modelName - Name of the model.
+   * @param {ControllerClass} invocationContextTarget - The invocation context loopback target
    *
    * @returns {Promise<DefaultCrudRepository>} - Resolved repository.
    */
   private async getDynamicRepo(
     modelName: string,
+    invocationContextTarget: unknown,
   ): Promise<DefaultCrudRepository<never, never, never>> {
-    return this.ctx.get(`repositories.${modelName}Repository`);
+    try {
+      return await this.ctx.get(`repositories.${modelName}Repository`);
+    } catch (ignore) {
+      // If the repository could not be found it's probably because we're dealing with a relationship
+      // for example User -> Role, but there is no UserRole repository. However, there is a UserRole model
+      // In this case, we check access to the first repository in the invocation context target
+      const capitalize = (str: string) =>
+        str.charAt(0).toUpperCase() + str.slice(1);
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const repositoryName = Object.keys(invocationContextTarget)[0];
+      return await this.ctx.get(`repositories.${capitalize(repositoryName)}`);
+    }
   }
 }

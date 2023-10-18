@@ -54,7 +54,7 @@ export const defaultUserRole = {
       modelName: 'User',
       ownershipField: '_id',
       value: '$currentUserId',
-      permissions: ['read', 'write'],
+      permissions: ['read', 'write', 'update'],
     }),
     new RoleCondition({
       modelName: 'Role',

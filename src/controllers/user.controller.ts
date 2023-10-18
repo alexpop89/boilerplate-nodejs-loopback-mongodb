@@ -61,7 +61,6 @@ export class UserController {
       const userRoles = [new Role(defaultUserRole)];
       return await this.userService.createUser(user, userRoles);
     } catch (error) {
-      console.error(error.message);
       throw new HttpErrors.BadRequest();
     }
   }
