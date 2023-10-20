@@ -5,7 +5,6 @@ import {UserLogRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
-@implementsAuthorization()
 export class UserLogController {
   constructor(
     @repository(UserLogRepository)
@@ -13,6 +12,7 @@ export class UserLogController {
   ) {}
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @get('/user-logs/count')
   @response(200, {
     description: 'UserLog model count',

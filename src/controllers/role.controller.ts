@@ -20,14 +20,16 @@ import {
 import {Role} from '../models';
 import {RoleRepository} from '../repositories';
 import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
+import {authenticate} from '@loopback/authentication';
 
-@implementsAuthorization()
 export class RoleController {
   constructor(
     @repository(RoleRepository)
     public roleRepository: RoleRepository,
   ) {}
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @post('/roles')
   @response(200, {
     description: 'Role model instance',
@@ -49,6 +51,8 @@ export class RoleController {
     return this.roleRepository.create(role);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @get('/roles/count')
   @response(200, {
     description: 'Role model count',
@@ -58,6 +62,8 @@ export class RoleController {
     return this.roleRepository.count(where);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @get('/roles')
   @response(200, {
     description: 'Array of Role model instances',
@@ -74,6 +80,8 @@ export class RoleController {
     return this.roleRepository.find(filter);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @patch('/roles')
   @response(200, {
     description: 'Role PATCH success count',
@@ -93,6 +101,8 @@ export class RoleController {
     return this.roleRepository.updateAll(role, where);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @get('/roles/{id}')
   @response(200, {
     description: 'Role model instance',
@@ -109,6 +119,8 @@ export class RoleController {
     return this.roleRepository.findById(id, filter);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @patch('/roles/{id}')
   @response(204, {
     description: 'Role PATCH success',
@@ -127,6 +139,8 @@ export class RoleController {
     await this.roleRepository.updateById(id, role);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @put('/roles/{id}')
   @response(204, {
     description: 'Role PUT success',
@@ -138,6 +152,8 @@ export class RoleController {
     await this.roleRepository.replaceById(id, role);
   }
 
+  @authenticate('jwt')
+  @implementsAuthorization()
   @del('/roles/{id}')
   @response(204, {
     description: 'Role DELETE success',

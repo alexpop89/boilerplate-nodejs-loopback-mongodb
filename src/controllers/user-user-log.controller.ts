@@ -5,13 +5,13 @@ import {UserRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
-@implementsAuthorization()
 export class UserUserLogController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
   ) {}
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @get('/users/{id}/user-logs', {
     responses: {
       '200': {

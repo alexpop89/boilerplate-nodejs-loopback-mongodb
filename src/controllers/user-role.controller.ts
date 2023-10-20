@@ -20,13 +20,13 @@ import {UserRepository} from '../repositories';
 import {authenticate} from '@loopback/authentication';
 import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
-@implementsAuthorization()
 export class UserRoleController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
   ) {}
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @get('/users/{id}/roles', {
     responses: {
       '200': {
@@ -47,6 +47,7 @@ export class UserRoleController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @post('/users/{id}/roles', {
     responses: {
       '200': {
@@ -74,6 +75,7 @@ export class UserRoleController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @patch('/users/{id}/roles', {
     responses: {
       '200': {
@@ -98,6 +100,7 @@ export class UserRoleController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @del('/users/{id}/roles', {
     responses: {
       '200': {

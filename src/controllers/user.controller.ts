@@ -28,7 +28,6 @@ import {authenticate} from '@loopback/authentication';
 import {SecurityBindings} from '@loopback/security';
 import {implementsAuthorization} from '../decorators/implements-authorization.decorator';
 
-@implementsAuthorization()
 export class UserController {
   constructor(
     @repository(UserRepository)
@@ -78,6 +77,27 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @get('/refresh-token', {
+    responses: {
+      '200': {
+        description:
+          'Refresh a json web token with a new one with a fresh expiration date',
+        content: {
+          'application/json': {},
+        },
+      },
+    },
+  })
+  async refreshToken(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+  ): Promise<{token: string}> {
+    const user = await this.userRepository.findById(currentUserProfile._id);
+    const userProfile = this.userService.convertToUserProfile(user);
+    const newAccessToken = await this.tokenService.generateToken(userProfile);
+    return {token: newAccessToken};
+  }
+
+  @authenticate('jwt')
   @get('/me', {
     responses: {
       '200': {
@@ -96,6 +116,7 @@ export class UserController {
   }
 
   @authenticate({strategy: 'jwt'})
+  @implementsAuthorization()
   @get('/users/count')
   @response(200, {
     description: 'User model count',
@@ -106,6 +127,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @get('/users')
   @response(200, {
     description: 'Array of User model instances',
@@ -123,6 +145,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @patch('/users')
   @response(200, {
     description: 'User PATCH success count',
@@ -143,6 +166,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @get('/users/{id}')
   @response(200, {
     description: 'User model instance',
@@ -160,6 +184,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @patch('/users/{id}')
   @response(204, {
     description: 'User PATCH success',
@@ -179,6 +204,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @put('/users/{id}')
   @response(204, {
     description: 'User PUT success',
@@ -191,6 +217,7 @@ export class UserController {
   }
 
   @authenticate('jwt')
+  @implementsAuthorization()
   @del('/users/{id}')
   @response(204, {
     description: 'User DELETE success',

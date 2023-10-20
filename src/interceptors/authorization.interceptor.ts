@@ -35,7 +35,6 @@ export class AuthorizationInterceptorProvider
    * @param {Constructor<{}>} _controllerClass - The controller class to intercept.
    * @param {string} _methodName - The method name to intercept within the controller.
    * @param {RoleRepository} roleRepository - Repository for fetching role information.
-   * @param {string} _authenticationMetadataKey - The metadata key used for authentication.
    * @param {Context} ctx - The Loopback application context.
    */
   constructor(
@@ -46,8 +45,6 @@ export class AuthorizationInterceptorProvider
     @inject(CoreBindings.CONTROLLER_METHOD_NAME, {optional: false})
     protected _methodName: string,
     @repository(RoleRepository) public roleRepository: RoleRepository,
-    @inject('metadata.AUTHENTICATION_METADATA_KEY')
-    private _authenticationMetadataKey: string,
     @inject(CoreBindings.APPLICATION_INSTANCE) protected ctx: Context,
   ) {
     super(ctx);
@@ -72,18 +69,14 @@ export class AuthorizationInterceptorProvider
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
   ): Promise<InvocationResult> {
-    // Detect if method uses @authenticate decorator or not using _authenticationMetadataKey. Until then...
-    if (
-      ['login', 'me'].includes(this._methodName) ||
-      (this._methodName === 'create' &&
-        this._controllerClass.name === 'UserController')
-    ) {
-      return next();
-    }
+    const usesAuthorization = Reflect.hasMetadata(
+      AUTHORIZATION_KEY,
+      this._controllerClass.prototype,
+      this._methodName,
+    );
 
-    // Check if the controller has the custom decorator
-    if (!Reflect.getMetadata(AUTHORIZATION_KEY, this._controllerClass)) {
-      // If not, skip and proceed to the next interceptor if any
+    // Detect if method uses the @implementsAuthorization(() decorator or not
+    if (!usesAuthorization) {
       return next();
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "boilerplate-nodejs-loopback",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "boilerplate-nodejs-loopback",
   "keywords": [
     "loopback-application",
@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": "16 || 18 || 20"
+    "node": "^18.17.0 || >=20.5.0"
   },
   "scripts": {
     "build": "lb-tsc",
@@ -21,9 +21,11 @@
     "prettier:fix": "yarn run prettier:cli --write",
     "eslint": "lb-eslint --report-unused-disable-directives .",
     "eslint:fix": "yarn run eslint --fix",
-    "pretest": "docker-compose up test -d && yarn run rebuild",
-    "test": "DB_PORT=27018 lb-mocha --timeout 5000 --allow-console-logs \"dist/__tests__\"",
-    "posttest": "docker-compose down test && yarn run lint:fix && yarn run lint",
+    "coverage": "open coverage/index.html",
+    "coverage:ci": "lb-nyc report --reporter=text-lcov | coveralls",
+    "pretest": "docker-compose up mongo -d && yarn run rebuild",
+    "test": "DB_NAME=test-database lb-nyc lb-mocha --timeout 5000 --allow-console-logs \"dist/__tests__\"",
+    "posttest": "docker-compose down mongo && yarn run lint:fix && yarn run lint && yarn run coverage",
     "docker:build": "docker build -t boilerplate-nodejs-loopback .",
     "docker:run": "docker run -p 3000:3000 -d boilerplate-nodejs-loopback",
     "premigrate": "yarn run build",
@@ -57,7 +59,6 @@
     "@loopback/build": "10.1.3",
     "@loopback/core": "5.1.3",
     "@loopback/eslint-config": "14.0.4",
-    "@loopback/metadata": "^6.1.3",
     "@loopback/repository": "6.1.3",
     "@loopback/rest": "13.1.3",
     "@loopback/rest-explorer": "6.1.3",

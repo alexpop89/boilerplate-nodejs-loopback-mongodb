@@ -45,7 +45,7 @@ describe('UserController', () => {
     token = response.body.token;
   });
 
-  it('can call /me', async () => {
+  it('can call /me if logged in', async () => {
     const response = await client
       .get('/me')
       .set('Authorization', `Bearer ${token}`)
@@ -57,21 +57,32 @@ describe('UserController', () => {
     expect(response.body).to.have.property('exp');
   });
 
-  it('can query their own user', async () => {
+  it('can request a refresh token if logged in', async () => {
+    await client.get('/refresh-token').expect(401);
+
+    const response = await client
+      .get('/refresh-token')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body).to.have.property('token');
+  });
+
+  it('can query their own user if logged in', async () => {
     await client
       .get(`/users/${createdUserId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
   });
 
-  it('can query their own roles', async () => {
+  it('can query their own roles if logged in', async () => {
     await client
       .get(`/users/${createdUserId}/roles`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
   });
 
-  it('can update their own values', async () => {
+  it('can update their own values if logged in', async () => {
     await client
       .patch(`/users/${createdUserId}`)
       .set('Authorization', `Bearer ${token}`)
