@@ -9,12 +9,15 @@ const mockUser = {
   lastName: 'Bar',
 };
 
-let createdUserId: string | number;
-let token: string = '';
+const uuidRegex =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('UserController', () => {
   let app: MainApplication;
   let client: Client;
+  let createdUserId: string | number;
+  let token: string = '';
+  let refreshToken: string = '';
 
   before('setupApplication', async () => {
     ({app, client} = await setupApplication());
@@ -42,7 +45,21 @@ describe('UserController', () => {
       })
       .expect(200);
     expect(response.body).to.have.property('token');
+    expect(response.body).to.have.property('refreshToken');
     token = response.body.token;
+    refreshToken = response.body.refreshToken;
+  });
+
+  it('can generate a refresh token in UUID format', async () => {
+    const response = await client
+      .post('/login')
+      .send({
+        email: mockUser.email,
+        password: mockUser.password,
+      })
+      .expect(200);
+    refreshToken = response.body.refreshToken;
+    expect(refreshToken).to.match(uuidRegex);
   });
 
   it('can call /me if logged in', async () => {
@@ -58,10 +75,14 @@ describe('UserController', () => {
   });
 
   it('can request a refresh token if logged in', async () => {
-    await client.get('/refresh-token').expect(401);
+    await client
+      .post('/refresh-token')
+      .send({refreshToken: refreshToken})
+      .expect(401);
 
     const response = await client
-      .get('/refresh-token')
+      .post('/refresh-token')
+      .send({refreshToken: refreshToken})
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -98,6 +119,30 @@ describe('UserController', () => {
       .expect(200);
     expect(response.body).to.have.property('firstName', 'Foo2');
     expect(response.body).to.have.property('lastName', 'Bar2');
+  });
+
+  it('can logout', async () => {
+    await client
+      .post('/logout')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204);
+  });
+
+  it('cannot use an old refresh token after logout', async () => {
+    const response = await client
+      .post('/login')
+      .send({
+        email: mockUser.email,
+        password: mockUser.password,
+      })
+      .expect(200);
+    token = response.body.token;
+
+    await client
+      .post('/refresh-token')
+      .send({refreshToken: refreshToken})
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
   });
 
   it('cannot signup again with same email address, will get HTTP STATUS 400', async () => {

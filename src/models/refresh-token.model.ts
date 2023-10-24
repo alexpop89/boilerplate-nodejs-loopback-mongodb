@@ -1,9 +1,9 @@
 import {model, property, belongsTo} from '@loopback/repository';
+import {Timestampable} from '.';
 import {User} from './user.model';
-import {Timestampable} from './__timestampable.model';
 
 @model()
-export class UserLog extends Timestampable {
+export class RefreshToken extends Timestampable {
   @property({
     type: 'string',
     id: true,
@@ -15,23 +15,25 @@ export class UserLog extends Timestampable {
     type: 'string',
     required: true,
   })
-  action: string;
+  value: string;
 
   @property({
-    type: 'object',
+    type: 'date',
   })
-  data?: object;
+  expires?: Date;
 
-  @belongsTo(() => User)
+  @belongsTo(() => User, {name: 'user'})
   userId: string;
 
-  constructor(data?: Partial<UserLog>) {
+  user: User;
+
+  constructor(data?: Partial<RefreshToken>) {
     super(data);
   }
 }
 
-export interface UserLogRelations {
+export interface RefreshTokenRelations {
   // describe navigational properties here
 }
 
-export type UserLogWithRelations = UserLog & UserLogRelations;
+export type RefreshTokenWithRelations = RefreshToken & RefreshTokenRelations;

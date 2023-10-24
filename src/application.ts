@@ -70,6 +70,10 @@ export class MainApplication extends BootMixin(
     this.bind('authentication.jwt.expiresIn').to(
       process.env.JWT_EXPIRATION_SECONDS ?? '600',
     );
+    this.bind('authentication.refreshToken.expirationDays').to(
+      parseInt(process.env.REFRESH_TOKEN_EXPIRATION_DAYS ?? '7', 10),
+    );
+
     this.bind('metadata.AUTHENTICATION_METADATA_KEY').to(
       AUTHENTICATION_METADATA_KEY,
     );

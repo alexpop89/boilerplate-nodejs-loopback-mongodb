@@ -1,9 +1,10 @@
 import {TokenService as LoopbackTokenService} from '@loopback/authentication';
-import {injectable, BindingScope} from '@loopback/core';
+import {BindingScope, injectable} from '@loopback/core';
 import {UserProfile} from '../interfaces';
 import {inject} from '@loopback/context';
 import {HttpErrors} from '@loopback/rest';
 import * as jwt from 'jsonwebtoken';
+import {v4 as uuidv4} from 'uuid';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class TokenService implements LoopbackTokenService {
@@ -42,5 +43,9 @@ export class TokenService implements LoopbackTokenService {
     return jwt.sign(userProfile, this.jwtSecret, {
       expiresIn: Number(this.jwtExpiresIn),
     });
+  }
+
+  generateUniqueToken(): string {
+    return uuidv4();
   }
 }

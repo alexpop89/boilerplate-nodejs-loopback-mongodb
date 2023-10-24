@@ -3,15 +3,21 @@ import {Role, User} from '../models';
 import {Credentials, UserProfile} from '../interfaces';
 import {securityId} from '@loopback/security';
 import {inject} from '@loopback/context';
-import {UserRepository} from '../repositories';
+import {RefreshTokenRepository, UserRepository} from '../repositories';
 import * as bcrypt from 'bcryptjs';
 import {HttpErrors} from '@loopback/rest';
+import {TokenServiceBindings} from '../keys';
+import {TokenService} from './token.service';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class UserService {
   constructor(
     @inject('repositories.UserRepository')
     public userRepository: UserRepository,
+    @inject('repositories.RefreshTokenRepository')
+    public refreshTokenRepository: RefreshTokenRepository,
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public tokenService: TokenService,
   ) {}
 
   convertToUserProfile(user: User): UserProfile {
@@ -62,5 +68,42 @@ export class UserService {
     }
 
     return createdUser;
+  }
+
+  async generateAccessToken(userProfile: UserProfile): Promise<string> {
+    return this.tokenService.generateToken(userProfile);
+  }
+
+  async regenerateAccessTokenFromRefreshTokenForUser(
+    refreshToken: string,
+    userId: string,
+  ): Promise<string> {
+    const token = await this.refreshTokenRepository.findOne({
+      where: {
+        value: refreshToken,
+        expires: {gt: new Date()}, // Check if expiration is in the future
+      },
+      include: [{relation: 'user'}],
+    });
+
+    if (!token || token.user._id !== userId) {
+      throw new HttpErrors.Unauthorized('Invalid or expired refresh token');
+    }
+
+    const userProfile = this.convertToUserProfile(token.user);
+    return this.generateAccessToken(userProfile);
+  }
+
+  async generateRefreshTokenForUser(user: User): Promise<string> {
+    const token = await this.refreshTokenRepository.create({
+      value: this.tokenService.generateUniqueToken(),
+      userId: user._id,
+    });
+
+    return token.value;
+  }
+
+  async invalidateAllRefreshTokensForUser(user: User): Promise<void> {
+    await this.refreshTokenRepository.deleteAll({userId: user._id});
   }
 }

@@ -1,7 +1,8 @@
-import {model, property, hasMany} from '@loopback/repository';
+import {model, property, hasMany, hasOne} from '@loopback/repository';
 import {UserLog} from './user-log.model';
-import {Timestampable} from './__timestampable.model.base';
+import {Timestampable} from './__timestampable.model';
 import {Role} from './role.model';
+import {RefreshToken} from './refresh-token.model';
 
 @model()
 export class User extends Timestampable {
@@ -62,6 +63,9 @@ export class User extends Timestampable {
 
   @hasMany(() => Role)
   roles: Role[];
+
+  @hasOne(() => RefreshToken)
+  refreshToken: RefreshToken;
 
   constructor(data?: Partial<User>) {
     super(data);

@@ -16,7 +16,9 @@ import {
   post,
   put,
   requestBody,
+  Response,
   response,
+  RestBindings,
 } from '@loopback/rest';
 import {defaultUserRole, Role, User} from '../models';
 import {UserRepository} from '../repositories';
@@ -30,10 +32,8 @@ import {implementsAuthorization} from '../decorators/implements-authorization.de
 
 export class UserController {
   constructor(
-    @repository(UserRepository)
-    public userRepository: UserRepository,
-    @inject(UserServiceBindings.USER_SERVICE)
-    public userService: UserService,
+    @repository(UserRepository) public userRepository: UserRepository,
+    @inject(UserServiceBindings.USER_SERVICE) public userService: UserService,
     @inject(TokenServiceBindings.TOKEN_SERVICE)
     public tokenService: TokenService,
   ) {}
@@ -67,33 +67,72 @@ export class UserController {
   @post('/login')
   async login(
     @requestBody() credentials: Credentials,
-  ): Promise<{token: string}> {
+  ): Promise<{token: string; refreshToken: string}> {
     const user = await this.userService.verifyCredentials(credentials);
     const userProfile = this.userService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
-    const token = await this.tokenService.generateToken(userProfile);
-    return {token};
+    const token = await this.userService.generateAccessToken(userProfile);
+    const refreshToken =
+      await this.userService.generateRefreshTokenForUser(user);
+    return {token, refreshToken};
   }
 
   @authenticate('jwt')
-  @get('/refresh-token', {
+  @post('/logout')
+  async logout(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @inject(RestBindings.Http.RESPONSE) logoutResponse: Response,
+  ): Promise<void> {
+    const user = await this.userRepository.findById(currentUserProfile._id);
+    await this.userService.invalidateAllRefreshTokensForUser(user);
+    logoutResponse.status(204).send();
+  }
+
+  @authenticate('jwt')
+  @post('/refresh-token', {
     responses: {
       '200': {
-        description:
-          'Refresh a json web token with a new one with a fresh expiration date',
+        description: 'Access Token Response', // A description for the response
         content: {
-          'application/json': {},
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {type: 'string'}, // The response should contain a 'token' property of type string
+              },
+            },
+          },
         },
       },
     },
   })
   async refreshToken(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              refreshToken: {type: 'string'},
+            },
+            required: ['refreshToken'],
+          },
+        },
+      },
+    })
+    payload: {refreshToken: string},
   ): Promise<{token: string}> {
-    const user = await this.userRepository.findById(currentUserProfile._id);
-    const userProfile = this.userService.convertToUserProfile(user);
-    const newAccessToken = await this.tokenService.generateToken(userProfile);
+    if (!payload.refreshToken) {
+      throw new HttpErrors.BadRequest('Refresh token is required');
+    }
+
+    const newAccessToken =
+      await this.userService.regenerateAccessTokenFromRefreshTokenForUser(
+        payload.refreshToken,
+        currentUserProfile._id,
+      );
     return {token: newAccessToken};
   }
 
