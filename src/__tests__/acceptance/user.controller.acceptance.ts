@@ -1,4 +1,4 @@
-import {Client, expect} from '@loopback/testlab';
+import {Client, expect, sinon} from '@loopback/testlab';
 import {MainApplication} from '../..';
 import {setupApplication} from './test-helper';
 
@@ -48,6 +48,32 @@ describe('UserController', () => {
     expect(response.body).to.have.property('refreshToken');
     token = response.body.token;
     refreshToken = response.body.refreshToken;
+  });
+
+  it('will receive the correct status code (401) for invalid credentials', async () => {
+    await client
+      .post('/login')
+      .send({
+        email: 'some_email@test.com',
+        password: 'super-duper-dumm!-P4ssword',
+      })
+      .expect(401);
+
+    await client
+      .post('/login')
+      .send({
+        email: mockUser.email,
+        password: 'super-duper-dumm!-P4ssword',
+      })
+      .expect(401);
+
+    await client
+      .post('/login')
+      .send({
+        email: 'some_email@test.com',
+        password: mockUser.password,
+      })
+      .expect(401);
   });
 
   it('can generate a refresh token in UUID format', async () => {
@@ -128,7 +154,7 @@ describe('UserController', () => {
       .expect(204);
   });
 
-  it('cannot use an old refresh token after logout', async () => {
+  it('cannot use an old refresh token after logout, will get HTTP STATUS 401', async () => {
     const response = await client
       .post('/login')
       .send({
@@ -143,6 +169,30 @@ describe('UserController', () => {
       .send({refreshToken: refreshToken})
       .set('Authorization', `Bearer ${token}`)
       .expect(401);
+  });
+
+  it('cannot use refresh token after more than 7 days, will get HTTP STATUS 401', async () => {
+    const clock = sinon.useFakeTimers(new Date().getTime());
+    const response = await client
+      .post('/login')
+      .send({
+        email: mockUser.email,
+        password: mockUser.password,
+      })
+      .expect(200);
+    token = response.body.token;
+    refreshToken = response.body.refreshToken;
+
+    clock.tick(7 * 24 * 60 * 60 * 1000); // Simulate 7 days
+    clock.tick(1000); // ... and 1 more second
+
+    await client
+      .post('/refresh-token')
+      .send({refreshToken: refreshToken})
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+
+    clock.restore();
   });
 
   it('cannot signup again with same email address, will get HTTP STATUS 400', async () => {
