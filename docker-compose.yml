@@ -21,10 +21,10 @@ services:
       - boilerplate-network
     volumes:
       - .:/home/node/app
-#    command: nodemon --delay 2s -e ts,json --ignore './dist' --watch /home/node/app/src --exec "yarn run start"
-    command: "yarn run start"
+    command: nodemon -e ts,json --ignore './dist' --watch /home/node/app/src --exec "yarn run start:dev"
+#    command: "yarn run start"
   mongo:
-    image: "mongo"
+    image: "mongo:7.0.1"
     ports:
       - "27017:27017"
     environment:
@@ -33,6 +33,25 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=boilerplate-database-password
     networks:
       - boilerplate-network
+    volumes:
+      - boilerplate-mongo:/data/db
+  mongo_test:
+    image: "mongo:7.0.1"
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=test-database
+      - MONGO_INITDB_ROOT_USERNAME=boilerplate-database-username
+      - MONGO_INITDB_ROOT_PASSWORD=boilerplate-database-password
+    networks:
+      - boilerplate-network
+    volumes:
+      - boilerplate-mongo-test:/data/db
 networks:
   boilerplate-network:
     driver: bridge
+
+volumes:
+  boilerplate-web-app:
+  boilerplate-mongo:
+  boilerplate-mongo-test:

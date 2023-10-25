@@ -172,7 +172,11 @@ describe('UserController', () => {
   });
 
   it('cannot use refresh token after more than 7 days, will get HTTP STATUS 401', async () => {
-    const clock = sinon.useFakeTimers(new Date().getTime());
+    const clock = sinon.useFakeTimers({
+      now: new Date().getTime(),
+      shouldClearNativeTimers: true,
+    });
+
     const response = await client
       .post('/login')
       .send({
