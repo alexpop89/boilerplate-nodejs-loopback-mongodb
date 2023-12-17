@@ -13,6 +13,8 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
     public tokenService: TokenService,
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token: string = this.extractCredentials(request);
     const userProfile = await this.tokenService.verifyToken(token);

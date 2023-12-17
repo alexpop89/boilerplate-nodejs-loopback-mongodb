@@ -15,6 +15,8 @@ export class TokenService implements LoopbackTokenService {
     private jwtExpiresIn: string,
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   async verifyToken(token: string): Promise<UserProfile> {
     if (!token) {
       throw new HttpErrors.Unauthorized(
@@ -32,6 +34,8 @@ export class TokenService implements LoopbackTokenService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   async generateToken(userProfile: UserProfile): Promise<string> {
     if (!userProfile) {
       throw new HttpErrors.Unauthorized(
