@@ -52,11 +52,13 @@ if (require.main === module) {
     },
     websocket: {
       port: process.env.WEBSOCKET_PORT ?? 3001,
-      origin: ALLOWED_ORIGINS?.includes(',')
-        ? ALLOWED_ORIGINS?.replace(/ /gi, '').split(',')
-        : [ALLOWED_ORIGINS],
-      methods: ['GET', 'POST'],
-    }
+      cleanupEmptyChildNamespaces: false,
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'OPTIONS'],
+        credentials: false,
+      },
+    },
   };
   main(config).catch(err => {
     console.error('Cannot start the application.', err);

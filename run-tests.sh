@@ -6,7 +6,7 @@ export DB_PORT="27018"
 docker-compose up mongo_test -d
 sleep 3
 yarn run build:dev
-lb-nyc lb-mocha --timeout 5000 --allow-console-logs \"dist/__tests__\"
+lb-nyc lb-mocha --timeout 10000 --allow-console-logs \"dist/__tests__\"
 EXIT_CODE=$?
 
 

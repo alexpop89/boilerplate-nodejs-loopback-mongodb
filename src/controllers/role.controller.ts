@@ -24,8 +24,7 @@ import {authenticate} from '@loopback/authentication';
 
 export class RoleController {
   constructor(
-    @repository(RoleRepository)
-    public roleRepository: RoleRepository,
+    @repository(RoleRepository) public roleRepository: RoleRepository,
   ) {}
 
   @authenticate('jwt')
